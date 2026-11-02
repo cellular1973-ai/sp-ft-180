@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14171a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="spft180.webmanifest">
+<link rel="icon" href="icons/spft180/icon-192.png">
+<link rel="apple-touch-icon" href="icons/spft180/apple-touch-icon.png">
+<title>SP-FT-180</title>
+<style>
+/* torus_kolye.html ile ayni dil; genis ekranda iki sutun */
+:root {
+  --bg: #f5f4f1; --card: #ffffff; --ink: #16191d; --ink-2: #55595f; --muted: #8b9096;
+  --line: #e2e1dc; --copper: #b4601f; --copper-2: #d9894a; --wireB: #2f6f9f; --ok: #1d7a3e; --warn: #9a6200; --bad: #b3261e;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111315; --card: #1a1d20; --ink: #eef0f2; --ink-2: #b6bcc3; --muted: #80878e;
+    --line: #2b3035; --copper: #e08a4f; --copper-2: #f0a76c; --wireB: #6fb0e0; --ok: #4cc27a; --warn: #f0b84a; --bad: #ff7a70; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 var(--font);
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px calc(env(safe-area-inset-bottom, 0px) + 20px); }
+main { max-width: 460px; margin: 0 auto; display: grid; gap: 14px; }
+.col { display: grid; gap: 14px; align-content: start; }
+@media (min-width: 900px) { main { max-width: 940px; grid-template-columns: 1fr 1fr; } header, .wide { grid-column: 1 / -1; } }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+h1 { font-size: 22px; margin: 0; letter-spacing: .08em; }
+h1 small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+#logo { width: 56px; height: 56px; flex: none; }
+h2 { font-size: 15px; margin: 0; }
+.conn { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+.dot.on { background: var(--ok); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+button { font: 600 16px var(--font); border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  padding: 12px 14px; cursor: pointer; min-height: 48px; }
+button.primary { background: var(--copper); border-color: var(--copper); color: #fff; }
+button.small { min-height: 36px; padding: 6px 10px; font-size: 14px; }
+button:disabled { opacity: .45; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--copper-2); outline-offset: 2px; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+.gauge { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 12px; }
+.big { font: 700 50px/1 var(--font); font-variant-numeric: tabular-nums; }
+.big small { font-size: 18px; font-weight: 600; color: var(--ink-2); margin-left: 4px; }
+.sub { font-size: 13px; color: var(--muted); }
+@media (max-width: 420px) { .gauge { grid-template-columns: 112px 1fr; gap: 8px; } .big { font-size: 42px; } .stat .v { font-size: 15px; } }
+.big2 { font: 600 22px var(--font); font-variant-numeric: tabular-nums; margin-top: 8px; }
+.big2 small { font-size: 14px; color: var(--ink-2); margin-left: 3px; }
+.label { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--ink-2); }
+.label b { color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+input[type=range] { width: 100%; accent-color: var(--copper); height: 32px; margin: 0; }
+input[type=number], select { font: 16px var(--font); color: var(--ink); background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 10px; min-height: 40px; width: 100%; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.seg.three { grid-template-columns: repeat(3, 1fr); }
+.seg button { min-height: 44px; padding: 8px 4px; font-size: 15px; }
+.seg button[aria-pressed="true"] { border-color: var(--copper); color: var(--copper); background: color-mix(in srgb, var(--copper) 10%, var(--card)); }
+.hint { font-size: 13px; color: var(--ink-2); margin: -4px 0 0; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.toggle span { font-size: 14px; color: var(--ink-2); display: grid; }
+.toggle small { font-size: 12px; color: var(--muted); }
+.toggle input { appearance: none; width: 46px; height: 28px; border-radius: 14px; background: var(--line); position: relative;
+  cursor: pointer; flex: none; margin: 0; transition: background .15s; }
+.toggle input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.toggle input:checked { background: var(--copper); }
+.toggle input:checked::after { transform: translateX(18px); }
+@media (prefers-reduced-motion: reduce) { .toggle input, .toggle input::after { transition: none; } }
+.stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px 14px; }
+.stat .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.stat .v { font: 600 17px var(--font); font-variant-numeric: tabular-nums; }
+.msg { font-size: 14px; border-radius: 10px; padding: 10px 12px; border: 1px solid var(--line); }
+.msg.warn { border-color: var(--warn); color: var(--warn); }
+.msg.bad { border-color: var(--bad); color: var(--bad); }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+.steps { display: grid; gap: 8px; }
+.step { display: grid; grid-template-columns: 22px 1fr 1fr 74px 36px; gap: 6px; align-items: center; font-size: 14px; }
+.step .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.step.cur .n { color: var(--copper); font-weight: 700; }
+.step button { min-height: 36px; padding: 0; font-size: 18px; }
+.progs { display: grid; gap: 8px; }
+.progs button { text-align: left; display: grid; gap: 2px; font-size: 15px; }
+.progs button small { font-weight: 400; font-size: 12px; color: var(--muted); }
+svg text { font-family: var(--font); }
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); max-width: 420px; }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog h2 { font-size: 18px; margin: 0 0 8px; }
+dialog ul { padding-left: 18px; margin: 0 0 14px; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand">
+      <canvas id="logo" width="168" height="168" aria-hidden="true"></canvas>
+      <h1>SP FT 180<small>Yıldız-Poligon Tam Toroid</small></h1>
+    </div>
+    <div class="conn"><span class="dot" id="dot"></span><span id="connTxt">Bağlı değil</span></div>
+  </header>
+
+  <div class="col">
+    <section class="card" aria-label="Bağlantı">
+      <div class="row">
+        <button class="primary" id="btnConnect">Cihaza bağlan</button>
+        <button id="btnDemo">Demo</button>
+      </div>
+      <div class="msg warn" id="support" hidden></div>
+    </section>
+
+    <section class="card" aria-label="Alan">
+      <div class="gauge">
+        <svg viewBox="0 0 150 120" role="img" aria-labelledby="figT" id="fig">
+          <title id="figT">Bobin kesiti ve alan biçimi</title>
+          <g id="lines" fill="none" stroke="var(--copper)" stroke-width="1.6" opacity=".85"></g>
+          <ellipse cx="38" cy="60" rx="24" ry="34" fill="var(--card)" stroke="var(--ink-2)" stroke-width="2"/>
+          <ellipse cx="112" cy="60" rx="24" ry="34" fill="var(--card)" stroke="var(--ink-2)" stroke-width="2"/>
+          <g id="tube" fill="none" stroke="var(--wireB)" stroke-width="2"></g>
+          <text x="38" y="64" text-anchor="middle" font-size="11" fill="var(--ink-2)" id="symL">·</text>
+          <text x="112" y="64" text-anchor="middle" font-size="11" fill="var(--ink-2)" id="symR">·</text>
+        </svg>
+        <div>
+          <div class="sub">Dış alan, bobin merkezinde (tepe)</div>
+          <div class="big" id="bBig">0<small>µT</small></div>
+          <div class="sub" style="margin-top:8px">Kapalı alan, tüp içinde</div>
+          <div class="big2" id="bTube">0<small>µT</small></div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="primary" id="btnOn" disabled>Başlat</button>
+        <button id="btnOff" disabled>Durdur</button>
+      </div>
+    </section>
+
+    <section class="card" aria-label="Durum">
+      <div class="stats">
+        <div class="stat"><div class="k">Akım</div><div class="v" id="sIA">—</div></div>
+        <div class="stat"><div class="k">Kalan</div><div class="v" id="sT">—</div></div>
+        <div class="stat"><div class="k">Köprü gerilimi</div><div class="v" id="sV">—</div></div>
+        <div class="stat"><div class="k">Besleme</div><div class="v" id="sVin">—</div></div>
+        <div class="stat"><div class="k">Akım fazı</div><div class="v" id="sPh">—</div></div>
+        <div class="stat"><div class="k">dB/dt</div><div class="v" id="sDb">—</div></div>
+      </div>
+      <div class="msg bad" id="fault" hidden></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card" aria-label="Sinyal">
+      <div class="label"><h2>Sinyal</h2><b id="modeTxt">100 Hz sinüs</b></div>
+      <div class="seg three" role="group" aria-label="Dalga biçimi" id="modeSeg">
+        <button data-mode="sinus" aria-pressed="true">Sinüs</button>
+        <button data-mode="darbe" aria-pressed="false">Darbe</button>
+        <button data-mode="schumann" aria-pressed="false">7,83 Hz</button>
+      </div>
+      <div id="freqBox">
+        <label class="label" for="freq">Frekans <b id="freqTxt">100 Hz</b></label>
+        <input type="range" id="freq" min="0" max="100" step="1" value="77" aria-describedby="freqTxt">
+      </div>
+      <div id="dutyBox" hidden>
+        <label class="label" for="duty">Darbe doluluğu <b id="dutyTxt">%25</b></label>
+        <input type="range" id="duty" min="10" max="50" step="5" value="25">
+      </div>
+      <label class="label" for="amp">Şiddet (tepe akım) <b id="ampTxt">1500 mA</b></label>
+      <input type="range" id="amp" min="100" max="3000" step="100" value="1500">
+    </section>
+
+    <section class="card" aria-label="Oturum">
+      <div class="label"><h2>Oturum</h2><b id="sesTxt">Tek ayar · 20 dk</b></div>
+      <div class="seg" role="group" aria-label="Oturum süresi" id="minSeg">
+        <button data-min="10" aria-pressed="false">10 dk</button>
+        <button data-min="20" aria-pressed="true">20 dk</button>
+        <button data-min="30" aria-pressed="false">30 dk</button>
+        <button data-min="60" aria-pressed="false">60 dk</button>
+      </div>
+      <div class="label"><span>Hazır programlar</span></div>
+      <div class="progs" id="progs"></div>
+      <div class="label"><span>Program adımları</span><b id="progSum">yok</b></div>
+      <div class="steps" id="steps"></div>
+      <div class="row">
+        <button class="small" id="stepAdd">+ Adım ekle</button>
+        <button class="small" id="progClr">Programı temizle</button>
+      </div>
+      <p class="hint">Program yüklüyse Başlat adımları sırayla çalıştırır; süre adımların toplamıdır.</p>
+    </section>
+
+    <section class="card" aria-label="Cihaz">
+      <label class="toggle" for="ledSw">
+        <span>Durum LED'i<small>Sürücü kutusundaki ışığın çakmasını açar/kapatır</small></span>
+        <input type="checkbox" id="ledSw" role="switch" checked>
+      </label>
+    </section>
+  </div>
+
+  <p class="note wide">Alan değerleri Biot-Savart hesabından (1 mm Cu, 10,6 m tel, 37 poloidal / 15 toroidal tur): merkezde 136 µT/A, eksende 5 cm yukarıda 77 µT/A, tüp içinde ≈ 143 µT/A. Bobin 0,23 Ω / 42 µH; sürücü 12 V ile akımı PWM üzerinden sınırlar. Ölçümle doğrulanmadı. Tıbbi cihaz değildir.</p>
+</main>
+
+<dialog id="warnDlg">
+  <h2>Kullanmadan önce</h2>
+  <ul>
+    <li>Kalp pili, defibrilatör veya başka bir aktif implantınız varsa kullanmayın.</li>
+    <li>Bobin merkezinde alan 0,4 mT mertebesine ulaşır.</li>
+    <li>Bobini yalnız SP-FT-180 sürücü kutusuna bağlayın; banana soketlere doğrudan adaptör bağlamayın.</li>
+    <li>Bu cihaz herhangi bir hastalığın tanı veya tedavisi için tasarlanmamıştır.</li>
+  </ul>
+  <button class="primary" id="warnOk" style="width:100%">Anladım</button>
+</dialog>
+
+<script>
+// spft180_surucu.ino ile ayni UUID'ler ve metin komutlari
+const SVC = "7a1c0201-5b4e-4f6a-9c1d-2e3f4a5b6c7d";
+const CMD = "7a1c0202-5b4e-4f6a-9c1d-2e3f4a5b6c7d";
+const STA = "7a1c0203-5b4e-4f6a-9c1d-2e3f4a5b6c7d";
+const UT_MID = 136.3, UT_TUBE = 143.4, I_MAX = 3000, T_RISE = 1e-4, R_TOP = 0.31, L_TOP = 89e-6;
+// frekans kaydirici: 0..100 -> 1..200 Hz (logaritmik), sik kullanilanlara yapisir
+const SNAP = [1, 2, 3, 5, 7.83, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100, 120, 150, 200];
+const sliderToF = (v) => { const f = Math.pow(200, v / 100); return SNAP.reduce((a, b) => Math.abs(Math.log(b / f)) < Math.abs(Math.log(a / f)) ? b : a); };
+const fToSlider = (f) => Math.round(100 * Math.log(f) / Math.log(200));
+const fmtHz = (f) => `${String(f).replace(".", ",")} Hz`;
+const PROGS = [
+  { ad: "Düşük frekans", txt: "7,83 Hz darbe 10 dk → 3 Hz sinüs 10 dk", steps: [[7.83, "w500", 10], [3, "s", 10]] },
+  { ad: "Karma", txt: "10 Hz sinüs 5 dk → 50 Hz darbe 10 dk → 7,83 Hz darbe 5 dk", steps: [[10, "s", 5], [50, "d25", 10], [7.83, "w500", 5]] },
+  { ad: "Klasik", txt: "100 Hz darbe %25, 20 dk", steps: [[100, "d25", 20]] },
+];
+const $ = (id) => document.getElementById(id);
+const st = { mode: "sinus", f: 100, duty: 25, minutes: 20, steps: [], curStep: 0 };
+let cmdCh = null, staCh = null, demo = null, pollTimer = null, ledTouched = 0, uiTouched = 0;
+
+// ---- PWA
+if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
+try { if (!localStorage.getItem("spft_uyari")) $("warnDlg").showModal(); } catch { $("warnDlg").showModal(); }
+$("warnOk").onclick = () => { try { localStorage.setItem("spft_uyari", "1"); } catch {} $("warnDlg").close(); };
+if (!navigator.bluetooth) {
+  $("support").hidden = false;
+  $("support").textContent = "Bu tarayıcı Web Bluetooth desteklemiyor. Android'de Chrome, iPhone'da Bluefy kullanın; sayfa HTTPS üzerinden açılmalı. Arayüzü Demo ile deneyebilirsiniz.";
+  $("btnConnect").disabled = true;
+}
+
+// ---- kesit cizimi: tek tel hem dipol (toroidal adim, delikten gecen cizgiler) hem tup ici halka (poloidal turlar) uretir
+function drawFig(on) {
+  const L = $("lines"); L.innerHTML = "";
+  for (let i = 1; i <= 3; i++) {
+    const w = 10 + i * 22, h = 50 + i * 4;
+    L.insertAdjacentHTML("beforeend", `<path d="M75 ${60 - h} C ${75 + w} ${60 - h}, ${75 + w} ${60 + h}, 75 ${60 + h} M75 ${60 - h} C ${75 - w} ${60 - h}, ${75 - w} ${60 + h}, 75 ${60 + h}"/>`);
+  }
+  L.insertAdjacentHTML("beforeend", `<path d="M75 8 V112"/>`);
+  L.style.opacity = on ? 0.92 : 0.55;
+  const T = $("tube"); T.innerHTML = "";
+  for (const cx of [38, 112]) T.insertAdjacentHTML("beforeend", `<ellipse cx="${cx}" cy="60" rx="14" ry="22"/>`);
+  T.style.opacity = on ? 0.93 : 0.55;
+  $("symL").textContent = "⊙"; $("symR").textContent = "⊗";
+}
+
+// ---- durum satiri: "ACIK mod=darbe/25 f=100.00Hz I_set=1500mA I=1498mA V=465mV faz=-8 Vin=12.04V Bm~..uT kalan=1180s prog=1/3 led=acik hata=yok"
+function parseStatus(t) {
+  const g = (re) => { const m = t.match(re); return m ? m[1] : null; };
+  const m = g(/mod=(sinus|darbe)/), f = +(g(/f=([\d.]+)Hz/) || 100), pw = g(/mod=darbe\/(\d+)us/);
+  const prog = g(/prog=(\d+)\/(\d+)/);
+  return {
+    on: t.startsWith("ACIK"), mode: m === "sinus" ? "sinus" : pw && f < 10 ? "schumann" : "darbe", f,
+    duty: +(g(/mod=darbe\/(\d+)(?!us)\b/) || st.duty), ph: +g(/faz=(-?[\d.]+)/),
+    iset: +g(/I_set=([\d.]+)mA/), ia: +g(/ I=(-?[\d.]+)mA/), va: +g(/ V=(-?[\d.]+)mV/), vin: +g(/Vin=([\d.]+)V/), left: +g(/kalan=(\d+)s/),
+    step: prog ? +prog : 0, fault: (g(/hata=(.*)$/) || "yok").trim(), led: { acik: true, kapali: false }[g(/led=(acik|kapali)/)],
+  };
+}
+
+function render(s) {
+  const ia = s.on ? Math.max(0, s.ia) / 1000 : 0, bm = UT_MID * ia, bt = UT_TUBE * ia;
+  $("bBig").innerHTML = `${Math.round(bm)}<small>µT</small>`;
+  $("bTube").innerHTML = `≈ ${Math.round(bt)}<small>µT</small>`;
+  $("sIA").textContent = s.on ? `${Math.round(s.ia)} mA` : "—";
+  $("sV").textContent = s.on ? `${Math.round(s.va)} mV` : "—";
+  $("sPh").textContent = s.on && s.mode === "sinus" ? `${Math.round(s.ph)}°` : "—";
+  $("sVin").textContent = isFinite(s.vin) && s.vin > 0 ? `${s.vin.toFixed(2)} V` : "—";
+  const dbdt = s.mode === "sinus" ? 2 * Math.PI * s.f * bm * 1e-6 : bm * 1e-6 / T_RISE;
+  $("sDb").textContent = s.on ? `${dbdt.toFixed(2)} T/s` : "—";
+  $("sT").textContent = s.on ? `${Math.floor(s.left / 60)}:${String(s.left % 60).padStart(2, "0")}` : "—";
+  if (Date.now() - uiTouched > 3000) {        // dokunustan hemen sonra gelen eski deger arayuzu geri cevirmesin
+    Object.assign(st, { mode: s.mode, f: s.f });
+    if (s.mode === "darbe") st.duty = s.duty;
+    syncUI();
+  }
+  st.curStep = s.on ? s.step : 0; renderSteps();
+  if (typeof s.led === "boolean" && Date.now() - ledTouched > 3000) $("ledSw").checked = s.led;
+  drawFig(s.on);
+  logo.active = s.on;
+  $("fault").hidden = !s.fault || s.fault === "yok";
+  $("fault").textContent = `Cihaz durdu: ${s.fault}. Sorunu giderip yeniden başlatın.`;
+  $("btnOn").disabled = s.on; $("btnOff").disabled = !s.on;
+}
+
+function syncUI() {
+  for (const b of $("modeSeg").children) b.setAttribute("aria-pressed", b.dataset.mode === st.mode);
+  $("freqBox").hidden = st.mode === "schumann";
+  $("dutyBox").hidden = st.mode !== "darbe";
+  $("freq").value = fToSlider(st.f); $("freqTxt").textContent = fmtHz(st.f);
+  $("duty").value = st.duty; $("dutyTxt").textContent = `%${st.duty}`;
+  $("modeTxt").textContent = st.mode === "schumann" ? "7,83 Hz darbe · 500 µs" : st.mode === "darbe" ? `${fmtHz(st.f)} darbe · %${st.duty}` : `${fmtHz(st.f)} sinüs`;
+  $("ampTxt").textContent = `${$("amp").value} mA`;
+  if (!demo && !cmdCh) drawFig(false);
+}
+
+function setConn(on, txt) {
+  $("dot").classList.toggle("on", on); $("connTxt").textContent = txt;
+  $("btnOn").disabled = !on; $("btnOff").disabled = !on;
+}
+
+// ---- gercek cihaz (BLE)
+async function send(cmd) {
+  if (demo) return demo.cmd(cmd);
+  if (cmdCh) await cmdCh.writeValue(new TextEncoder().encode(cmd));
+}
+async function readStatus() {
+  if (!staCh) return;
+  try { render(parseStatus(new TextDecoder().decode(await staCh.readValue()))); } catch { /* baglanti kopmus olabilir */ }
+}
+const signalCmds = () => st.mode === "schumann" ? ["schumann"]
+  : st.mode === "darbe" ? ["w 0", `d ${st.duty}`, `f ${st.f}`, "m darbe"] : ["w 0", `f ${st.f}`, "m sinus"];
+async function pushAll() {
+  for (const c of [`a ${$("amp").value}`, `t ${st.minutes}`, ...signalCmds(), progCmd(), $("ledSw").checked ? "led on" : "led off"]) await send(c);
+}
+$("btnConnect").onclick = async () => {
+  try {
+    const dev = await navigator.bluetooth.requestDevice({ filters: [{ name: "SPFT180" }], optionalServices: [SVC] });
+    dev.addEventListener("gattserverdisconnected", () => { setConn(false, "Bağlantı koptu"); clearInterval(pollTimer); cmdCh = staCh = null; });
+    const svc = await (await dev.gatt.connect()).getPrimaryService(SVC);
+    cmdCh = await svc.getCharacteristic(CMD);
+    staCh = await svc.getCharacteristic(STA);
+    await staCh.startNotifications().catch(() => {});   // bildirim kisa gelebilir; her bildirimde tam degeri okuyoruz
+    staCh.addEventListener("characteristicvaluechanged", readStatus);
+    setConn(true, dev.name || "Bağlı");
+    await pushAll();
+    clearInterval(pollTimer); pollTimer = setInterval(readStatus, 1500); readStatus();
+  } catch (e) {
+    if (e.name !== "NotFoundError") alert("Bağlanılamadı: " + e.message);
+  }
+};
+
+// ---- demo: cihaz yokken firmware davranisini taklit eder
+$("btnDemo").onclick = () => {
+  demo = {
+    s: { on: false, mode: st.mode, f: st.f, duty: st.duty, iset: +$("amp").value, ia: 0, va: 0, ph: 0,
+         vin: 12.04, left: 0, step: 0, fault: "yok", led: $("ledSw").checked },
+    prog: [], end: 0, stepEnd: 0, ses: st.minutes,
+    apply(p) { const s = this.s; s.f = p[0]; s.mode = p[1] === "s" ? "sinus" : p[1].startsWith("w") && p[0] < 10 ? "schumann" : "darbe";
+      if (p[1].startsWith("d")) s.duty = +p[1].slice(1); this.stepEnd = Date.now() + p[2] * 60000; },
+    cmd(c) {
+      const s = this.s, [k, v] = [c.split(" ")[0], c.slice(c.indexOf(" ") + 1)];
+      if (c === "on") { s.on = true; s.fault = "yok"; s.step = this.prog.length ? 1 : 0;
+        if (this.prog.length) this.apply(this.prog[0]);
+        this.end = Date.now() + (this.prog.length ? this.prog.reduce((a, p) => a + p[2], 0) : this.ses) * 60000; }
+      else if (c === "off") s.on = false;
+      else if (k === "a") s.iset = Math.min(I_MAX, +v);
+      else if (k === "t") this.ses = +v;
+      else if (k === "f") s.f = +v;
+      else if (k === "m") s.mode = v === "sinus" ? "sinus" : "darbe";
+      else if (k === "d") s.duty = +v;
+      else if (c === "schumann") { s.f = 7.83; s.mode = "schumann"; }
+      else if (k === "p") this.prog = c === "p" ? [] : v.split(",").map((x) => x.split("/")).map((x) => [+x[0], x[1], +x[2]]);
+      else if (k === "led") s.led = v === "on";
+    },
+    tick() {
+      const s = this.s, now = Date.now();
+      if (s.on && s.step && now >= this.stepEnd && s.step < this.prog.length) this.apply(this.prog[s.step++]);
+      if (s.on && now >= this.end) s.on = false;
+      const n = () => s.iset * (0.99 + Math.random() * 0.02);
+      s.ia = s.on ? n() : 0;
+      const z = Math.hypot(R_TOP, 2 * Math.PI * s.f * L_TOP);   // sinus: V = I |Z|, akim gerilimden geri
+      s.va = s.ia * (s.mode === "sinus" ? z : R_TOP); s.ph = -Math.atan2(2 * Math.PI * s.f * L_TOP, R_TOP) * 57.3;
+      s.left = s.on ? Math.round((this.end - now) / 1000) : 0;
+      if (!s.on) s.step = 0;
+      render(s);
+    },
+  };
+  setConn(true, "Demo");
+  pushAll();
+  clearInterval(pollTimer); pollTimer = setInterval(() => demo.tick(), 500); demo.tick();
+};
+
+// ---- kontroller
+const touched = () => { uiTouched = Date.now(); };
+for (const b of $("modeSeg").children) b.onclick = async () => {
+  touched(); st.mode = b.dataset.mode;
+  if (st.mode === "schumann") st.f = 7.83;
+  syncUI(); for (const c of signalCmds()) await send(c);
+};
+$("freq").oninput = () => { touched(); st.f = sliderToF(+$("freq").value); syncUI(); };
+$("freq").onchange = () => send(`f ${st.f}`);
+$("duty").oninput = () => { touched(); st.duty = +$("duty").value; syncUI(); };
+$("duty").onchange = () => send(`d ${st.duty}`);
+$("amp").oninput = () => { $("ampTxt").textContent = `${$("amp").value} mA`; };
+$("amp").onchange = () => send(`a ${$("amp").value}`);
+for (const b of $("minSeg").children) b.onclick = () => {
+  for (const x of $("minSeg").children) x.setAttribute("aria-pressed", x === b);
+  st.minutes = +b.dataset.min; renderSteps(); send(`t ${st.minutes}`);
+};
+$("btnOn").onclick = async () => { await pushAll(); await send("on"); readStatus(); };
+$("btnOff").onclick = async () => { await send("off"); readStatus(); };
+try { $("ledSw").checked = localStorage.getItem("spft_led") !== "0"; } catch {}
+$("ledSw").onchange = () => {
+  ledTouched = Date.now();
+  try { localStorage.setItem("spft_led", $("ledSw").checked ? "1" : "0"); } catch {}
+  send($("ledSw").checked ? "led on" : "led off");
+};
+
+// ---- program: adim = [f, "s" | "dNN" | "wNNN", dakika]
+const progCmd = () => st.steps.length ? "p " + st.steps.map((p) => `${p[0]}/${p[1]}/${p[2]}`).join(",") : "p";
+function saveSteps() { try { localStorage.setItem("spft_prog", JSON.stringify(st.steps)); } catch {} }
+function renderSteps() {
+  const tot = st.steps.reduce((a, p) => a + p[2], 0);
+  $("progSum").textContent = st.steps.length ? `${st.steps.length} adım · ${tot} dk` : "yok";
+  $("sesTxt").textContent = st.steps.length ? `Program · ${tot} dk` : `Tek ayar · ${st.minutes} dk`;
+  const box = $("steps");
+  if (box.contains(document.activeElement)) return;   // duzenlenirken yeniden cizme
+  box.innerHTML = "";
+  st.steps.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "step" + (st.curStep === i + 1 ? " cur" : "");
+    row.innerHTML = `<span class="n">${i + 1}</span>
+      <select aria-label="Adım ${i + 1} frekans">${SNAP.map((f) => `<option value="${f}"${f === p[0] ? " selected" : ""}>${fmtHz(f)}</option>`).join("")}</select>
+      <select aria-label="Adım ${i + 1} dalga"><option value="s">Sinüs</option><option value="d25">Darbe %25</option><option value="d50">Darbe %50</option><option value="w500">Dar darbe</option></select>
+      <input type="number" min="1" max="120" value="${p[2]}" aria-label="Adım ${i + 1} dakika">
+      <button aria-label="Adım ${i + 1} sil">×</button>`;
+    const [sf, sw] = row.querySelectorAll("select"), num = row.querySelector("input"), del = row.querySelector("button");
+    sw.value = [...sw.options].some((o) => o.value === p[1]) ? p[1] : "s";
+    const upd = () => { p[0] = +sf.value; p[1] = sw.value; p[2] = Math.max(1, Math.min(120, Math.round(+num.value || 1))); saveSteps(); send(progCmd()); renderSteps(); };
+    sf.onchange = upd; sw.onchange = upd; num.onchange = upd;
+    del.onclick = () => { st.steps.splice(i, 1); saveSteps(); send(progCmd()); renderSteps(); };
+    box.appendChild(row);
+  });
+}
+$("stepAdd").onclick = () => { if (st.steps.length < 12) { st.steps.push([10, "s", 5]); saveSteps(); send(progCmd()); renderSteps(); } };
+$("progClr").onclick = () => { st.steps = []; saveSteps(); send("p"); renderSteps(); };
+for (const p of PROGS) {
+  const b = document.createElement("button");
+  b.innerHTML = `${p.ad}<small>${p.txt}</small>`;
+  b.onclick = () => { st.steps = p.steps.map((x) => [...x]); saveSteps(); send(progCmd()); renderSteps(); };
+  $("progs").appendChild(b);
+}
+try { st.steps = JSON.parse(localStorage.getItem("spft_prog") || "[]"); } catch {}
+// ---- logo: SP-FT-180'in kendisi; tek tel Rodin sargısı (37 poloidal / 15 toroidal tur), cihaz çalışırken hızlı döner
+const logo = (() => {
+  const cv = $("logo"), ctx = cv.getContext("2d"), W = cv.width;
+  const RM = 55, A = 35, B = 41.5, NP = 37, MT = 15, N = NP * 30, TILT = 0.9;   // ikon_spft180.py ile aynı
+  const wires = [Array.from({ length: N + 1 }, (_, i) => {
+    const t = 2 * Math.PI * NP * i / N, r = RM + (A + 1) * Math.cos(t), ph = -MT / NP * t;
+    return [r * Math.cos(ph), r * Math.sin(ph), (B + 1) * Math.sin(t)];
+  })];
+  const sc = W * 0.47 / (RM + A + 3), cx = W / 2, cy = W / 2;
+  const me = { active: false };
+  let ang = 0.6, last = 0, col = null, tick = 0;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const proj = ([x, y, z]) => {
+    const x1 = x * Math.cos(ang) - y * Math.sin(ang), y1 = x * Math.sin(ang) + y * Math.cos(ang);
+    return [cx + sc * x1, cy + sc * (y1 * Math.cos(TILT) - z * Math.sin(TILT)), y1 * Math.sin(TILT) + z * Math.cos(TILT)];
+  };
+  function draw() {
+    if (!col || tick++ % 60 === 0) {
+      const cs = getComputedStyle(document.documentElement);
+      col = { a: cs.getPropertyValue("--copper").trim(), b: cs.getPropertyValue("--wireB").trim(), body: cs.getPropertyValue("--muted").trim() };
+    }
+    ctx.clearRect(0, 0, W, W);
+    ctx.fillStyle = col.body; ctx.globalAlpha = 0.05;          // gövde: halka boyunca yarı saydam kesitler
+    for (let j = 0; j < 72; j++) {
+      const u = 2 * Math.PI * j / 72, [X, Y] = proj([RM * Math.cos(u), RM * Math.sin(u), 0]);
+      ctx.beginPath(); ctx.arc(X, Y, A * sc, 0, 2 * Math.PI); ctx.fill();
+    }
+    const segs = [];
+    wires.forEach((w, k) => {
+      let p = proj(w[0]);
+      for (let i = 1; i < w.length; i++) { const q = proj(w[i]); segs.push([p, q, (p[2] + q[2]) / 2, k]); p = q; }
+    });
+    segs.sort((s1, s2) => s1[2] - s2[2]);                       // arkadan öne
+    const zr = (RM + A) * 1.05;
+    ctx.lineWidth = W / 90; ctx.lineCap = "round";
+    for (const [p, q, z, k] of segs) {
+      ctx.globalAlpha = 0.18 + 0.82 * Math.min(1, Math.max(0, (z + zr) / (2 * zr)));
+      ctx.strokeStyle = k ? col.b : col.a;
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function frame(ts) {
+    const dt = last ? Math.min(0.1, (ts - last) / 1000) : 0; last = ts;
+    if (!reduce) ang += dt * (me.active ? 1.6 : 0.3);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  draw();
+  if (!reduce) requestAnimationFrame(frame);
+  return me;
+})();
+
+syncUI(); renderSteps();
+</script>
+</body>
+</html>

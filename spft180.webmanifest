@@ -1,0 +1,17 @@
+{
+  "name": "SP-FT-180",
+  "short_name": "SP-FT-180",
+  "description": "SP-FT-180 yıldız-poligon toroid bobinin sürücü kutusunu Bluetooth ile kontrol eder.",
+  "lang": "tr",
+  "start_url": "./sp_ft_180.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14171a",
+  "theme_color": "#14171a",
+  "icons": [
+    { "src": "icons/spft180/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/spft180/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/spft180/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

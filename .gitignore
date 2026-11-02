@@ -1,0 +1,4 @@
+firmware/**/build/
+*.bin
+*.elf
+*.map
